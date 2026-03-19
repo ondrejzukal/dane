@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Srovnání daňových režimů OSVČ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0c0c0f;
+  --bg-card:#18181c;
+  --bg-card-hover:#1e1e24;
+  --border:rgba(255,255,255,0.06);
+  --border-active:rgba(255,255,255,0.15);
+  --text:#e8e6e1;
+  --text-muted:#8a8880;
+  --text-dim:#5c5a54;
+  --green:#4ecb8d;
+  --green-dim:#2a7a52;
+  --blue:#6ba3e8;
+  --blue-dim:#3a6aa0;
+  --orange:#e8945a;
+  --orange-dim:#9e5c2e;
+  --green-bg:rgba(78,203,141,0.08);
+  --blue-bg:rgba(107,163,232,0.08);
+  --orange-bg:rgba(232,148,90,0.08);
+  --font:'DM Sans',system-ui,sans-serif;
+  --mono:'JetBrains Mono','SF Mono',monospace;
+}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font);
+  line-height:1.6;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+.container{
+  max-width:1120px;
+  margin:0 auto;
+  padding:2.5rem 1.5rem 4rem;
+}
+header{
+  margin-bottom:2.5rem;
+}
+header h1{
+  font-size:1.5rem;
+  font-weight:500;
+  letter-spacing:-0.02em;
+  margin-bottom:0.35rem;
+}
+header p{
+  font-size:0.875rem;
+  color:var(--text-muted);
+  max-width:640px;
+}
+.scenario-nav{
+  display:flex;
+  gap:6px;
+  margin-bottom:2rem;
+  flex-wrap:wrap;
+}
+.scenario-btn{
+  appearance:none;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text-muted);
+  font-family:var(--font);
+  font-size:0.8125rem;
+  font-weight:400;
+  padding:10px 20px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:all 0.2s ease;
+}
+.scenario-btn:hover{
+  border-color:var(--border-active);
+  color:var(--text);
+}
+.scenario-btn.active{
+  background:var(--bg-card);
+  border-color:var(--border-active);
+  color:var(--text);
+  font-weight:500;
+}
+.cards{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-bottom:2.5rem;
+}
+@media(max-width:820px){
+  .cards{grid-template-columns:1fr;}
+}
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:1.25rem 1.5rem;
+  position:relative;
+  transition:border-color 0.2s ease, background 0.2s ease;
+}
+.card.winner{
+  border-width:2px;
+}
+.card.winner-green{border-color:var(--green-dim);background:var(--green-bg)}
+.card.winner-blue{border-color:var(--blue-dim);background:var(--blue-bg)}
+.card.winner-orange{border-color:var(--orange-dim);background:var(--orange-bg)}
+.card-badge{
+  position:absolute;
+  top:-11px;
+  right:16px;
+  font-size:0.6875rem;
+  font-weight:500;
+  padding:3px 12px;
+  border-radius:6px;
+  letter-spacing:0.02em;
+  text-transform:uppercase;
+}
+.badge-green{background:var(--green);color:#0c0c0f}
+.badge-blue{background:var(--blue);color:#0c0c0f}
+.badge-orange{background:var(--orange);color:#0c0c0f}
+.card-title{
+  font-size:0.9375rem;
+  font-weight:500;
+  margin-bottom:2px;
+}
+.card-subtitle{
+  font-size:0.75rem;
+  color:var(--text-dim);
+  margin-bottom:1rem;
+}
+.card-rows{
+  border-top:1px solid var(--border);
+  padding-top:0.75rem;
+}
+.card-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+  padding:3px 0;
+  font-size:0.8125rem;
+}
+.card-row .label{color:var(--text-muted)}
+.card-row .value{
+  font-family:var(--mono);
+  font-size:0.8125rem;
+  font-weight:400;
+  color:var(--text);
+  text-align:right;
+}
+.card-row .value.dim{color:var(--text-dim)}
+.card-total{
+  border-top:1px solid var(--border);
+  margin-top:0.75rem;
+  padding-top:0.75rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:baseline;
+}
+.card-total .label{
+  font-size:0.875rem;
+  font-weight:500;
+}
+.card-total .value{
+  font-family:var(--mono);
+  font-size:1.125rem;
+  font-weight:500;
+}
+.value-green{color:var(--green)}
+.value-blue{color:var(--blue)}
+.value-orange{color:var(--orange)}
+.chart-section{
+  margin-bottom:2rem;
+}
+.chart-container{
+  position:relative;
+  width:100%;
+  height:300px;
+  margin-bottom:1rem;
+}
+.chart-legend{
+  display:flex;
+  gap:1.5rem;
+  flex-wrap:wrap;
+  font-size:0.75rem;
+  color:var(--text-muted);
+}
+.legend-item{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.legend-dot{
+  width:10px;
+  height:10px;
+  border-radius:3px;
+}
+.insight-box{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:1rem 1.25rem;
+  font-size:0.8125rem;
+  color:var(--text-muted);
+  line-height:1.7;
+}
+.insight-box strong{
+  color:var(--text);
+  font-weight:500;
+}
+.footer-note{
+  margin-top:2.5rem;
+  padding-top:1.5rem;
+  border-top:1px solid var(--border);
+  font-size:0.6875rem;
+  color:var(--text-dim);
+  line-height:1.8;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.card{animation:fadeIn 0.35s ease both}
+.card:nth-child(2){animation-delay:0.06s}
+.card:nth-child(3){animation-delay:0.12s}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Srovnání daňových režimů OSVČ</h1>
+    <p>Tři realistické scénáře ukazují, kdy se který daňový režim vyplatí nejvíc. Čísla jsou ilustrativní — odvody zdravotního a sociálního pojištění jsou zjednodušené.</p>
+  </header>
+
+  <nav class="scenario-nav" id="scenarioNav"></nav>
+  <section class="cards" id="cards"></section>
+
+  <section class="chart-section">
+    <div class="chart-container">
+      <canvas id="barChart"></canvas>
+    </div>
+    <div class="chart-legend" id="chartLegend"></div>
+  </section>
+
+  <div class="insight-box" id="insightBox"></div>
+
+  <div class="footer-note">
+    Ilustrativní model pro školení SMB prodejců · Zdravotní + sociální pojištění ≈ 21,16 % ze základu daně (zjednodušeno) · Paušální daň 2025: 7 498 Kč/měs = 89 976 Kč/rok · Paušální daň: příjmový strop 2 mil. Kč, nesmí být plátce DPH · © 2026 Ondřej Zukal, Apple Certified Sales Trainer
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const scenarios = [
+  {
+    id: 'lektor',
+    label: 'Lektor / trenér',
+    subtitle: 'Minimální náklady, příjmy u stropu',
+    prijmy: 950000,
+    naklady: 65000,
+    pausalni_dan_rok: 89976,
+    vydajovy_pct: 0.60,
+    winner: 'pausalni_dan',
+    insight: '<strong>Lektor angličtiny nebo osobní trenér</strong> má minimální provozní náklady — software, telefon, občas pronájem sálu. Při příjmech blížících se milionu je fixní paušální daň 89 976 Kč/rok výrazně nižší než odvody z ostatních režimů. Princip: čím vyšší příjmy při nízkých nákladech, tím víc paušální daň šetří.'
+  },
+  {
+    id: 'grafik',
+    label: 'Grafik / webdesignér',
+    subtitle: 'Středně nízké náklady',
+    prijmy: 850000,
+    naklady: 180000,
+    pausalni_dan_rok: 89976,
+    vydajovy_pct: 0.60,
+    winner: 'vydajovy_pausal',
+    insight: '<strong>Grafik nebo webdesignér na volné noze</strong> má středně nízké náklady — MacBook Pro, software (Adobe, Figma), coworking, telefon. Paušální odpočet 60 % (510 000 Kč) je výrazně vyšší než skutečné náklady 180 000 Kč, což dramaticky snižuje základ daně. Sweet spot pro výdajový paušál.'
+  },
+  {
+    id: 'remeslnik',
+    label: 'Řemeslník / instalatér',
+    subtitle: 'Vysoké náklady na materiál + odpisy',
+    prijmy: 1400000,
+    naklady: 980000,
+    pausalni_dan_rok: 89976,
+    vydajovy_pct: 0.60,
+    winner: 'danova_evidence',
+    insight: '<strong>Instalatér nebo řemeslník</strong> má vysoké skutečné náklady: materiál, nářadí, dodávka, PHM, odpisy, pojistky, brigádník na DPP. Skutečné výdaje 980 000 Kč výrazně převyšují paušální odpočet 840 000 Kč. Daňová evidence umožňuje uplatnit každou korunu a vede k nejnižšímu základu daně.'
+  }
+];
+
+const palette = {
+  pausalni_dan:   { color: '#4ecb8d', dim: '#2a7a52', cardClass: 'winner-green', badgeClass: 'badge-green', valueClass: 'value-green' },
+  vydajovy_pausal:{ color: '#6ba3e8', dim: '#3a6aa0', cardClass: 'winner-blue',  badgeClass: 'badge-blue',  valueClass: 'value-blue'  },
+  danova_evidence:{ color: '#e8945a', dim: '#9e5c2e', cardClass: 'winner-orange',badgeClass: 'badge-orange',valueClass: 'value-orange'}
+};
+
+const regimeNames = {
+  pausalni_dan: 'Paušální daň',
+  vydajovy_pausal: 'Výdajový paušál 60 %',
+  danova_evidence: 'Daňová evidence'
+};
+
+const regimeSubtitles = {
+  pausalni_dan: 'Fixní měsíční platba, žádné odpisy',
+  vydajovy_pausal: '60 % příjmů = výdaje, zbytek zdaníš',
+  danova_evidence: 'Skutečné výdaje + odpisy'
+};
+
+function calc(s) {
+  const keys = ['pausalni_dan', 'vydajovy_pausal', 'danova_evidence'];
+  const result = {};
+
+  // Paušální daň
+  result.pausalni_dan = {
+    prijmy: s.prijmy,
+    naklady: s.naklady,
+    zaklad: null,
+    dan: null,
+    soc_zdrav: null,
+    odvody: s.pausalni_dan_rok,
+    cisty: s.prijmy - s.naklady - s.pausalni_dan_rok
+  };
+
+  // Výdajový paušál
+  const vp_pausal = Math.round(s.prijmy * s.vydajovy_pct);
+  const vp_zaklad = s.prijmy - vp_pausal;
+  const vp_dan = Math.round(vp_zaklad * 0.15);
+  const vp_soc = Math.round(vp_zaklad * 0.2116);
+  result.vydajovy_pausal = {
+    prijmy: s.prijmy,
+    naklady: s.naklady,
+    pausal_vydaje: vp_pausal,
+    zaklad: vp_zaklad,
+    dan: vp_dan,
+    soc_zdrav: vp_soc,
+    odvody: vp_dan + vp_soc,
+    cisty: s.prijmy - s.naklady - vp_dan - vp_soc
+  };
+
+  // Daňová evidence
+  const de_zaklad = s.prijmy - s.naklady;
+  const de_dan = Math.round(de_zaklad * 0.15);
+  const de_soc = Math.round(de_zaklad * 0.2116);
+  result.danova_evidence = {
+    prijmy: s.prijmy,
+    naklady: s.naklady,
+    zaklad: de_zaklad,
+    dan: de_dan,
+    soc_zdrav: de_soc,
+    odvody: de_dan + de_soc,
+    cisty: s.prijmy - s.naklady - de_dan - de_soc
+  };
+
+  return result;
+}
+
+function fmt(v) {
+  if (v === null) return '—';
+  return v.toLocaleString('cs-CZ') + ' Kč';
+}
+
+let chart = null;
+let activeIdx = 0;
+const keys = ['pausalni_dan', 'vydajovy_pausal', 'danova_evidence'];
+
+function render(idx) {
+  activeIdx = idx;
+  const s = scenarios[idx];
+  const r = calc(s);
+
+  // Tabs
+  document.getElementById('scenarioNav').innerHTML = scenarios.map((sc, i) =>
+    `<button class="scenario-btn${i === idx ? ' active' : ''}" onclick="render(${i})">${sc.label}</button>`
+  ).join('');
+
+  // Cards
+  document.getElementById('cards').innerHTML = keys.map(k => {
+    const d = r[k];
+    const p = palette[k];
+    const isW = k === s.winner;
+
+    const rows = [];
+    rows.push({ label: 'Příjmy', value: fmt(d.prijmy) });
+    rows.push({ label: 'Provozní náklady', value: fmt(d.naklady) });
+    if (d.pausal_vydaje !== undefined) rows.push({ label: 'Paušální výdaje 60 %', value: fmt(d.pausal_vydaje) });
+    rows.push({ label: 'Základ daně', value: fmt(d.zaklad), dim: d.zaklad === null });
+    rows.push({ label: 'Daň z příjmu 15 %', value: fmt(d.dan), dim: d.dan === null });
+    rows.push({ label: 'Zdrav. + soc.', value: fmt(d.soc_zdrav), dim: d.soc_zdrav === null });
+
+    return `<div class="card${isW ? ' winner ' + p.cardClass : ''}" style="animation-delay:${keys.indexOf(k) * 0.06}s">
+      ${isW ? `<span class="card-badge ${p.badgeClass}">Nejvýhodnější</span>` : ''}
+      <div class="card-title">${regimeNames[k]}</div>
+      <div class="card-subtitle">${regimeSubtitles[k]}</div>
+      <div class="card-rows">
+        ${rows.map(r => `<div class="card-row">
+          <span class="label">${r.label}</span>
+          <span class="value${r.dim ? ' dim' : ''}">${r.value}</span>
+        </div>`).join('')}
+      </div>
+      <div class="card-total">
+        <span class="label">Čistý zisk</span>
+        <span class="value ${p.valueClass}">${fmt(d.cisty)}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Chart
+  const chartData = keys.map(k => r[k].cisty);
+  const barColors = keys.map(k => k === s.winner ? palette[k].color : palette[k].dim);
+  const maxVal = Math.ceil(Math.max(...chartData) * 1.15 / 50000) * 50000;
+
+  if (chart) {
+    chart.data.datasets[0].data = chartData;
+    chart.data.datasets[0].backgroundColor = barColors;
+    chart.options.scales.y.max = maxVal;
+    chart.update('none');
+  } else {
+    chart = new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Paušální daň', 'Výdajový paušál 60 %', 'Daňová evidence'],
+        datasets: [{
+          data: chartData,
+          backgroundColor: barColors,
+          borderRadius: 8,
+          maxBarThickness: 90
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 400, easing: 'easeOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#18181c',
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderWidth: 1,
+            titleColor: '#e8e6e1',
+            bodyColor: '#8a8880',
+            titleFont: { family: 'DM Sans', size: 13, weight: 500 },
+            bodyFont: { family: 'JetBrains Mono', size: 12 },
+            padding: 12,
+            cornerRadius: 8,
+            displayColors: false,
+            callbacks: {
+              title: ctx => ctx[0].label,
+              label: ctx => ctx.parsed.y.toLocaleString('cs-CZ') + ' Kč čistý zisk'
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: maxVal,
+            grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+            border: { display: false },
+            ticks: {
+              color: '#5c5a54',
+              font: { family: 'JetBrains Mono', size: 11 },
+              padding: 8,
+              callback: v => (v / 1000).toLocaleString('cs-CZ') + ' tis.'
+            }
+          },
+          x: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: {
+              color: '#8a8880',
+              font: { family: 'DM Sans', size: 12 },
+              padding: 8
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Legend
+  document.getElementById('chartLegend').innerHTML = keys.map(k =>
+    `<span class="legend-item"><span class="legend-dot" style="background:${palette[k].color}"></span>${regimeNames[k]}</span>`
+  ).join('');
+
+  // Insight
+  document.getElementById('insightBox').innerHTML = s.insight;
+}
+
+render(0);
+</script>
+</body>
+</html>
