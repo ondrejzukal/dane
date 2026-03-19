@@ -101,6 +101,8 @@ header p{
   padding:1.25rem 1.5rem;
   position:relative;
   transition:border-color 0.2s ease, background 0.2s ease;
+  display:flex;
+  flex-direction:column;
 }
 .card.winner{
   border-width:2px;
@@ -135,6 +137,7 @@ header p{
 .card-rows{
   border-top:1px solid var(--border);
   padding-top:0.75rem;
+  flex:1;
 }
 .card-row{
   display:flex;
@@ -250,7 +253,7 @@ header p{
   <div class="insight-box" id="insightBox"></div>
 
   <div class="footer-note">
-    Ilustrativní model pro školení SMB prodejců · Zdravotní + sociální pojištění ≈ 21,16 % ze základu daně (zjednodušeno) · Paušální daň 2025: 7 498 Kč/měs = 89 976 Kč/rok · Paušální daň: příjmový strop 2 mil. Kč, nesmí být plátce DPH · © 2026 Ondřej Zukal, Apple Certified Sales Trainer
+    Ilustrativní model pro školení SMB prodejců · Zdravotní + sociální pojištění ≈ 21,16 % ze základu daně (zjednodušeno) · Paušální daň 2026: I. pásmo 9 984 Kč/měs · II. pásmo 16 745 Kč/měs · III. pásmo 27 139 Kč/měs · Příjmový strop 2 mil. Kč, nesmí být plátce DPH · © 2026 Ondřej Zukal, Apple Certified Sales Trainer
   </div>
 </div>
 
@@ -260,35 +263,38 @@ const scenarios = [
   {
     id: 'lektor',
     label: 'Lektor / trenér',
-    subtitle: 'Minimální náklady, příjmy u stropu',
+    subtitle: 'I. pásmo · minimální náklady, příjmy do 1 mil.',
     prijmy: 950000,
     naklady: 65000,
-    pausalni_dan_rok: 89976,
+    pausalni_dan_rok: 119808,
+    pausalni_dan_mes: 9984,
     vydajovy_pct: 0.60,
     winner: 'pausalni_dan',
-    insight: '<strong>Lektor angličtiny nebo osobní trenér</strong> má minimální provozní náklady — software, telefon, občas pronájem sálu. Při příjmech blížících se milionu je fixní paušální daň 89 976 Kč/rok výrazně nižší než odvody z ostatních režimů. Princip: čím vyšší příjmy při nízkých nákladech, tím víc paušální daň šetří.'
+    insight: '<strong>Lektor angličtiny nebo osobní trenér</strong> má minimální provozní náklady — software, telefon, občas pronájem sálu. Spadá do I. pásma paušální daně (9 984 Kč/měs). Fixní platba 119 808 Kč/rok je výrazně nižší než odvody z ostatních režimů. Princip: čím vyšší příjmy při nízkých nákladech, tím víc paušální daň šetří.'
   },
   {
-    id: 'grafik',
-    label: 'Grafik / webdesignér',
-    subtitle: 'Středně nízké náklady',
-    prijmy: 850000,
-    naklady: 180000,
-    pausalni_dan_rok: 89976,
+    id: 'konzultant',
+    label: 'IT konzultant',
+    subtitle: 'III. pásmo · příjmy přes 1,5 mil., 40% paušál',
+    prijmy: 1800000,
+    naklady: 280000,
+    pausalni_dan_rok: 325668,
+    pausalni_dan_mes: 27139,
     vydajovy_pct: 0.60,
     winner: 'vydajovy_pausal',
-    insight: '<strong>Grafik nebo webdesignér na volné noze</strong> má středně nízké náklady — MacBook Pro, software (Adobe, Figma), coworking, telefon. Paušální odpočet 60 % (510 000 Kč) je výrazně vyšší než skutečné náklady 180 000 Kč, což dramaticky snižuje základ daně. Sweet spot pro výdajový paušál.'
+    insight: '<strong>IT konzultant nebo poradce</strong> s příjmy přes 1,5 mil. spadá do III. pásma paušální daně (27 139 Kč/měs = 325 668 Kč/rok). To je víc, než kolik zaplatí na výdajovém paušálu 60 %. Výdajový paušál odpočítá 1 080 000 Kč z příjmů a výrazně sníží základ daně. Sweet spot pro výdajový paušál.'
   },
   {
     id: 'remeslnik',
     label: 'Řemeslník / instalatér',
-    subtitle: 'Vysoké náklady na materiál + odpisy',
-    prijmy: 1400000,
-    naklady: 980000,
-    pausalni_dan_rok: 89976,
-    vydajovy_pct: 0.60,
+    subtitle: 'I. pásmo · řemeslná živnost 80%, velmi vysoké náklady',
+    prijmy: 1800000,
+    naklady: 1500000,
+    pausalni_dan_rok: 119808,
+    pausalni_dan_mes: 9984,
+    vydajovy_pct: 0.80,
     winner: 'danova_evidence',
-    insight: '<strong>Instalatér nebo řemeslník</strong> má vysoké skutečné náklady: materiál, nářadí, dodávka, PHM, odpisy, pojistky, brigádník na DPP. Skutečné výdaje 980 000 Kč výrazně převyšují paušální odpočet 840 000 Kč. Daňová evidence umožňuje uplatnit každou korunu a vede k nejnižšímu základu daně.'
+    insight: '<strong>Instalatér nebo řemeslník</strong> s řemeslnou živností (80% výdajový paušál) spadá i při příjmech 1,8 mil. do I. pásma. Ale jeho skutečné náklady 1 500 000 Kč (materiál, subdodávky, dodávka, PHM, odpisy, nářadí) jsou tak vysoké, že sráží základ daně na pouhých 300 000 Kč. Odvody z daňové evidence (108 480 Kč) jsou nižší než fixní paušální platba (119 808 Kč). Čím vyšší podíl nákladů na příjmech, tím víc se DE vyplatí.'
   }
 ];
 
@@ -300,18 +306,22 @@ const palette = {
 
 const regimeNames = {
   pausalni_dan: 'Paušální daň',
-  vydajovy_pausal: 'Výdajový paušál 60 %',
+  vydajovy_pausal: 'Výdajový paušál',
   danova_evidence: 'Daňová evidence'
 };
 
-const regimeSubtitles = {
-  pausalni_dan: 'Fixní měsíční platba, žádné odpisy',
-  vydajovy_pausal: '60 % příjmů = výdaje, zbytek zdaníš',
-  danova_evidence: 'Skutečné výdaje + odpisy'
-};
+function regimeSubtitle(k, s) {
+  if (k === 'pausalni_dan') return 'Fixní měsíční platba, žádné odpisy';
+  if (k === 'vydajovy_pausal') return Math.round(s.vydajovy_pct * 100) + ' % příjmů = výdaje, zbytek zdaníš';
+  return 'Skutečné výdaje + odpisy';
+}
+
+function regimeName(k, s) {
+  if (k === 'vydajovy_pausal') return 'Výdajový paušál ' + Math.round(s.vydajovy_pct * 100) + ' %';
+  return regimeNames[k];
+}
 
 function calc(s) {
-  const keys = ['pausalni_dan', 'vydajovy_pausal', 'danova_evidence'];
   const result = {};
 
   // Paušální daň
@@ -322,7 +332,8 @@ function calc(s) {
     dan: null,
     soc_zdrav: null,
     odvody: s.pausalni_dan_rok,
-    cisty: s.prijmy - s.naklady - s.pausalni_dan_rok
+    cisty: s.prijmy - s.naklady - s.pausalni_dan_rok,
+    available: true
   };
 
   // Výdajový paušál
@@ -338,7 +349,8 @@ function calc(s) {
     dan: vp_dan,
     soc_zdrav: vp_soc,
     odvody: vp_dan + vp_soc,
-    cisty: s.prijmy - s.naklady - vp_dan - vp_soc
+    cisty: s.prijmy - s.naklady - vp_dan - vp_soc,
+    available: true
   };
 
   // Daňová evidence
@@ -352,7 +364,8 @@ function calc(s) {
     dan: de_dan,
     soc_zdrav: de_soc,
     odvody: de_dan + de_soc,
-    cisty: s.prijmy - s.naklady - de_dan - de_soc
+    cisty: s.prijmy - s.naklady - de_dan - de_soc,
+    available: true
   };
 
   return result;
@@ -386,10 +399,10 @@ function render(idx) {
     const rows = [];
     rows.push({ label: 'Příjmy', value: fmt(d.prijmy) });
     rows.push({ label: 'Provozní náklady', value: fmt(d.naklady) });
-    if (d.pausal_vydaje !== undefined) rows.push({ label: 'Paušální výdaje 60 %', value: fmt(d.pausal_vydaje) });
+    if (d.pausal_vydaje !== undefined) rows.push({ label: 'Paušální výdaje ' + Math.round(s.vydajovy_pct * 100) + ' %', value: fmt(d.pausal_vydaje) });
     if (k === 'pausalni_dan') {
       rows.push({ label: 'Fixní roční platba', value: fmt(d.odvody), highlight: true });
-      rows.push({ label: '(daň + zdrav. + soc.)', value: '7 498 Kč/měs', dim: true });
+      rows.push({ label: '(daň + zdrav. + soc.)', value: s.pausalni_dan_mes.toLocaleString('cs-CZ') + ' Kč/měs', dim: true });
     } else {
       rows.push({ label: 'Základ daně', value: fmt(d.zaklad) });
       rows.push({ label: 'Daň z příjmu 15 %', value: fmt(d.dan) });
@@ -398,8 +411,8 @@ function render(idx) {
 
     return `<div class="card${isW ? ' winner ' + p.cardClass : ''}" style="animation-delay:${keys.indexOf(k) * 0.06}s">
       ${isW ? `<span class="card-badge ${p.badgeClass}">Nejvýhodnější</span>` : ''}
-      <div class="card-title">${regimeNames[k]}</div>
-      <div class="card-subtitle">${regimeSubtitles[k]}</div>
+      <div class="card-title">${regimeName(k, s)}</div>
+      <div class="card-subtitle">${regimeSubtitle(k, s)}</div>
       <div class="card-rows">
         ${rows.map(r => `<div class="card-row">
           <span class="label">${r.label}</span>
@@ -419,6 +432,7 @@ function render(idx) {
   const maxVal = Math.ceil(Math.max(...chartData) * 1.15 / 50000) * 50000;
 
   if (chart) {
+    chart.data.labels = keys.map(k => regimeName(k, s));
     chart.data.datasets[0].data = chartData;
     chart.data.datasets[0].backgroundColor = barColors;
     chart.options.scales.y.max = maxVal;
@@ -427,7 +441,7 @@ function render(idx) {
     chart = new Chart(document.getElementById('barChart'), {
       type: 'bar',
       data: {
-        labels: ['Paušální daň', 'Výdajový paušál 60 %', 'Daňová evidence'],
+        labels: keys.map(k => regimeName(k, s)),
         datasets: [{
           data: chartData,
           backgroundColor: barColors,
@@ -487,7 +501,7 @@ function render(idx) {
 
   // Legend
   document.getElementById('chartLegend').innerHTML = keys.map(k =>
-    `<span class="legend-item"><span class="legend-dot" style="background:${palette[k].color}"></span>${regimeNames[k]}</span>`
+    `<span class="legend-item"><span class="legend-dot" style="background:${palette[k].color}"></span>${regimeName(k, s)}</span>`
   ).join('');
 
   // Insight
