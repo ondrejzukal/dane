@@ -152,6 +152,7 @@ header p{
   text-align:right;
 }
 .card-row .value.dim{color:var(--text-dim)}
+.card-row .value.hl{color:var(--text);font-weight:500}
 .card-total{
   border-top:1px solid var(--border);
   margin-top:0.75rem;
@@ -386,9 +387,14 @@ function render(idx) {
     rows.push({ label: 'Příjmy', value: fmt(d.prijmy) });
     rows.push({ label: 'Provozní náklady', value: fmt(d.naklady) });
     if (d.pausal_vydaje !== undefined) rows.push({ label: 'Paušální výdaje 60 %', value: fmt(d.pausal_vydaje) });
-    rows.push({ label: 'Základ daně', value: fmt(d.zaklad), dim: d.zaklad === null });
-    rows.push({ label: 'Daň z příjmu 15 %', value: fmt(d.dan), dim: d.dan === null });
-    rows.push({ label: 'Zdrav. + soc.', value: fmt(d.soc_zdrav), dim: d.soc_zdrav === null });
+    if (k === 'pausalni_dan') {
+      rows.push({ label: 'Fixní roční platba', value: fmt(d.odvody), highlight: true });
+      rows.push({ label: '(daň + zdrav. + soc.)', value: '7 498 Kč/měs', dim: true });
+    } else {
+      rows.push({ label: 'Základ daně', value: fmt(d.zaklad) });
+      rows.push({ label: 'Daň z příjmu 15 %', value: fmt(d.dan) });
+      rows.push({ label: 'Zdrav. + soc.', value: fmt(d.soc_zdrav) });
+    }
 
     return `<div class="card${isW ? ' winner ' + p.cardClass : ''}" style="animation-delay:${keys.indexOf(k) * 0.06}s">
       ${isW ? `<span class="card-badge ${p.badgeClass}">Nejvýhodnější</span>` : ''}
@@ -397,7 +403,7 @@ function render(idx) {
       <div class="card-rows">
         ${rows.map(r => `<div class="card-row">
           <span class="label">${r.label}</span>
-          <span class="value${r.dim ? ' dim' : ''}">${r.value}</span>
+          <span class="value${r.dim ? ' dim' : ''}${r.highlight ? ' hl' : ''}">${r.value}</span>
         </div>`).join('')}
       </div>
       <div class="card-total">
